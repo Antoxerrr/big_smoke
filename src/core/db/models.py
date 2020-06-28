@@ -14,4 +14,5 @@ class User(Document):
     date_start = fields.DateTimeField()
     # Когда последний раз покурил
     last_smoked = fields.DateTimeField()
-
+    # Идентификатор режима работы
+    mode_id = fields.IntField()

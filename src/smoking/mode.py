@@ -10,6 +10,8 @@ class BaseMode:
 
     # Название режима
     name: str
+    # Идентификатор режима
+    mode_id: int
 
     @classmethod
     def calculate_interval(cls, days_delta: int) -> float:
@@ -42,6 +44,7 @@ class EasyMode(BaseMode):
     """
 
     name = 'Лёгкий'
+    mode_id = 1
 
     @classmethod
     def calculate_interval(cls, days_delta: int) -> float:
@@ -56,6 +59,7 @@ class NormalMode(BaseMode):
     """
 
     name = 'Обычный'
+    mode_id = 2
 
     @classmethod
     def calculate_interval(cls, days_delta: int) -> float:
@@ -70,6 +74,7 @@ class HardMode(BaseMode):
     """
 
     name = 'Сложный'
+    mode_id = 3
 
     @classmethod
     def calculate_interval(cls, days_delta: int) -> float:
