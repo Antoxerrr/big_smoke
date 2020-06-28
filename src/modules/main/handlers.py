@@ -18,7 +18,6 @@ def start(update, context):
 
 def smoke_asking(update, context):
     """Обработка кнопки 'Можно курить?'."""
-    raise UserNotFoundUnexpectedError()
     update.message.reply_text('Нет бля')
 
 

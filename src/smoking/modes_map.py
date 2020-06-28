@@ -1,7 +1,7 @@
 from smoking.mode import HardMode, NormalMode, EasyMode
 
 modes_map = {
-    1: EasyMode,
-    2: NormalMode,
-    3: HardMode,
+    EasyMode.mode_id: EasyMode,
+    NormalMode.mode_id: NormalMode,
+    HardMode.mode_id: HardMode,
 }
