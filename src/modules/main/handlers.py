@@ -29,8 +29,7 @@ def smoke_update(update, context):
 
 def on_error(update, context):
     """Обработчик ошибок."""
-    if isinstance(context.error, UserNotFoundUnexpectedError):
-        update.message.reply_text('Произошла ошибка ;(')
+    update.message.reply_text('Произошла ошибка ;(')
 
 
 dispatcher.add_handler(CommandHandler('start', start))

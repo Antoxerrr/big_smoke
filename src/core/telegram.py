@@ -6,7 +6,7 @@ from core.exceptions import TokenNotSpecifiedException
 
 TOKEN: str = os.getenv('TOKEN')
 if not TOKEN:
-    raise TokenNotSpecifiedException
+    raise TokenNotSpecifiedException()
 
 updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
