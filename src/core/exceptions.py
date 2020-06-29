@@ -11,3 +11,12 @@ class UserNotFoundUnexpectedError(Exception):
     Должно вызываться во время работы программы если юзер не найден тогда,
     когда по идее должен был быть найден. :P
     """
+
+    def __str__(self):
+        return 'Пользователь, пользующийся ботом не найден в базе.'
+
+
+class DateSmokedGreaterThanToday(Exception):
+
+    def __str__(self):
+        return 'Дата последнего курения больше сегодняшней...'

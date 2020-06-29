@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 from mongoengine import DoesNotExist
 from telegram import ReplyKeyboardMarkup
@@ -58,3 +59,22 @@ def get_mode_id_by_button_text(button_text):
     elif button_text == HARD_MODE_BUTTON_TEXT:
         mode_id = HardMode.mode_id
     return mode_id
+
+
+def user_program_is_active(user: User) -> bool:
+    """Проверка, активна ли у юзера программа бота в данный момент."""
+    return (user.date_start is not None) and (user.mode_id is not None)
+
+
+def decide_declension(variants: List[str], number: int):
+    """Подбирает нужное склонение для слова."""
+    if not len(variants) == 3:
+        raise ValueError('Длина списка вариантов должна быть равна трём.')
+
+    if number % 10 == 1:
+        result = variants[0]
+    elif 2 <= number <= 4 or (number > 20 and 2 <= (number % 10) <= 4):
+        result = variants[1]
+    else:
+        result = variants[2]
+    return result
