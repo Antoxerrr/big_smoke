@@ -9,6 +9,7 @@ verify_ssl = true
 mongoengine = "*"
 pytz = "*"
 python-telegram-bot = "===12.2.0"
+sentry-sdk = "*"
 
 [requires]
 python_version = "3.7"
