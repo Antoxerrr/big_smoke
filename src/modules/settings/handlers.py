@@ -94,8 +94,9 @@ def perform_switch_mode(update, context):
 
 def back(update, context):
     """Кнопка назад."""
+    user = get_user_or_raise(update.effective_user.id)
     update.message.reply_text(
-        'Главное меню', reply_markup=get_start_keyboard()
+        'Главное меню', reply_markup=get_start_keyboard(user)
     )
     return ConversationHandler.END
 
