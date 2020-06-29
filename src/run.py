@@ -1,4 +1,7 @@
 import logging
+import os
+
+import sentry_sdk
 
 from core.db.setup import db_connection
 from core.loader import PackagesLoader
@@ -18,6 +21,10 @@ def load_modules():
 
 
 def main():
+    sentry_dsn = os.getenv('SENTRY_DSN', None)
+    if sentry_dsn:
+        sentry_sdk.init(dsn=sentry_dsn)
+
     load_modules()
     connection = db_connection()
     updater.start_polling(clean=True)

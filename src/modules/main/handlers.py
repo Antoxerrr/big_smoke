@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import sentry_sdk
 from telegram import ParseMode
 from telegram.ext import CommandHandler, MessageHandler
 
@@ -25,7 +26,9 @@ def start(update, context):
 
 def check_user_last_smoke_date(user: User):
     if user.last_smoked > datetime.now():
-        raise DateSmokedGreaterThanToday()
+        exception = DateSmokedGreaterThanToday()
+        sentry_sdk.capture_exception(exception)
+        raise exception
 
 
 def smoke_asking(update, context):

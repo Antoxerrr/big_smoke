@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
 
+import sentry_sdk
 from mongoengine import DoesNotExist
 from telegram import ReplyKeyboardMarkup
 
@@ -31,7 +32,9 @@ def get_user_or_raise(user_id):
     try:
         user = User.objects.get(user_id=user_id)
     except DoesNotExist:
-        raise UserNotFoundUnexpectedError()
+        exception = UserNotFoundUnexpectedError()
+        sentry_sdk.capture_exception(exception)
+        raise exception
     return user
 
 
@@ -71,7 +74,7 @@ def decide_declension(variants: List[str], number: int):
     if not len(variants) == 3:
         raise ValueError('Длина списка вариантов должна быть равна трём.')
 
-    if number % 10 == 1:
+    if number % 10 == 1 and not (10 < number < 20):
         result = variants[0]
     elif 2 <= number <= 4 or (number > 20 and 2 <= (number % 10) <= 4):
         result = variants[1]
