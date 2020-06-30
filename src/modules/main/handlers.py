@@ -5,8 +5,7 @@ from telegram import ParseMode
 from telegram.ext import CommandHandler, MessageHandler
 
 from core.db.models import User
-from core.exceptions import UserNotFoundUnexpectedError, \
-    DateSmokedGreaterThanToday
+from core.exceptions import DateSmokedGreaterThanToday
 from core.filters import CustomFilters
 from core.helpers import get_user_or_raise, user_program_is_active
 from core.telegram import dispatcher
@@ -45,7 +44,9 @@ def smoke_asking(update, context):
                 update.message.reply_text('Уже можно! ✅')
             else:
                 answer = beautiful_smoke_ask_answer(next_smoke_time)
-                update.message.reply_text(answer, parse_mode=ParseMode.MARKDOWN)
+                update.message.reply_text(
+                    answer, parse_mode=ParseMode.MARKDOWN
+                )
 
 
 def smoke_update(update, context):
