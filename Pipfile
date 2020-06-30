@@ -10,6 +10,7 @@ mongoengine = "*"
 pytz = "*"
 python-telegram-bot = "===12.2.0"
 sentry-sdk = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.7"
