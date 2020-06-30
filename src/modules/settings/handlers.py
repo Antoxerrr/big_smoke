@@ -17,9 +17,9 @@ from modules.settings.keyborads import (
 
 SETTINGS, STARTING, STOPPING, SWITCHING_MODE = range(4)
 MODE_BUTTONS_FILTER = (
-        CustomFilters.button(EASY_MODE_BUTTON_TEXT) |
-        CustomFilters.button(NORMAL_MODE_BUTTON_TEXT) |
-        CustomFilters.button(HARD_MODE_BUTTON_TEXT)
+    CustomFilters.button(EASY_MODE_BUTTON_TEXT)
+    | CustomFilters.button(NORMAL_MODE_BUTTON_TEXT)
+    | CustomFilters.button(HARD_MODE_BUTTON_TEXT)
 )
 
 

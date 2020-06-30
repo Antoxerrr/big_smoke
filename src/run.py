@@ -26,7 +26,7 @@ def main():
         sentry_sdk.init(dsn=sentry_dsn)
 
     load_modules()
-    connection = db_connection()
+    connection = db_connection()  # noqa
     updater.start_polling(clean=True)
     updater.idle()
 
