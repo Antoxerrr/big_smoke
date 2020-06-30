@@ -1,0 +1,29 @@
+image: docker:latest
+
+variables:
+  DOCKER_DRIVER: overlay
+  # Имена образов с приложением
+  APP_BRANCH_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  APP_DEV_IMAGE: $CI_REGISTRY_IMAGE:dev
+  APP_MASTER_IMAGE: $CI_REGISTRY_IMAGE:master
+  APP_LATEST_IMAGE: $CI_REGISTRY_IMAGE:latest
+
+services:
+  - docker:dind
+
+stages:
+  - lint
+
+.registry-login: &registry-login
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+
+
+flake8:
+  stage: lint
+  image: $APP_BRANCH_IMAGE
+  script:
+    - flake8
+  only:
+    - master
+    - merge_requests
