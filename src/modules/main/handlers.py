@@ -70,7 +70,15 @@ def on_error(update, context):
     update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN)
 
 
+def help_cmd(update, context):
+    """Обработчик команды /help."""
+    update.message.reply_text(
+        messages.HELP_TEXT, parse_mode=ParseMode.MARKDOWN
+    )
+
+
 dispatcher.add_handler(CommandHandler('start', start))
+dispatcher.add_handler(CommandHandler('help', help_cmd))
 dispatcher.add_handler(
     MessageHandler(
         CustomFilters.button(CAN_I_SMOKE_BUTTON_TEXT),
