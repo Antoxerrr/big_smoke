@@ -9,6 +9,7 @@ from core.exceptions import DateSmokedGreaterThanToday
 from core.filters import CustomFilters
 from core.helpers import get_user_or_raise, user_program_is_active
 from core.telegram import dispatcher
+from modules.main import messages
 from modules.main.helpers import get_or_create_user, beautiful_smoke_ask_answer
 from modules.main.keyboards import (
     get_start_keyboard, CAN_I_SMOKE_BUTTON_TEXT, I_SMOKED_BUTTON_TEXT
@@ -20,7 +21,9 @@ def start(update, context):
     """Обработчик команды start."""
     user = get_or_create_user(update.effective_user)
     keyboard = get_start_keyboard(user)
-    update.message.reply_markdown('Привет!', reply_markup=keyboard)
+    update.message.reply_markdown(
+        messages.HELLO_START_MESSAGE, reply_markup=keyboard
+    )
 
 
 def check_user_last_smoke_date(user: User):
@@ -41,7 +44,7 @@ def smoke_asking(update, context):
                 user.date_start, user.last_smoked
             )
             if smoking_allowed:
-                update.message.reply_text('Уже можно! ✅')
+                update.message.reply_text(messages.YOU_CAN_SMOKE_MESSAGE)
             else:
                 answer = beautiful_smoke_ask_answer(next_smoke_time)
                 update.message.reply_text(
@@ -55,12 +58,16 @@ def smoke_update(update, context):
     if user_program_is_active(user):
         user.last_smoked = datetime.now()
         user.save()
-        update.message.reply_text('Таймер обновлён.')
+        update.message.reply_text(messages.TIMER_IS_UPDATED_MESSAGE)
 
 
 def on_error(update, context):
     """Обработчик ошибок."""
-    update.message.reply_text('Произошла ошибка ;(')
+    error_msg = str(context.error)
+    message = (
+        f'{messages.AN_ERROR_OCCURRED_MESSAGE} \n\n `{error_msg}`'
+    )
+    update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN)
 
 
 dispatcher.add_handler(CommandHandler('start', start))

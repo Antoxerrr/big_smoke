@@ -2,7 +2,7 @@ class TokenNotSpecifiedException(Exception):
     """Исключение в случае не указанного токена бота."""
 
     def __str__(self):
-        return 'Не указан токен телеграм бота.'
+        return 'Bot token is not specified.'
 
 
 class UserNotFoundUnexpectedError(Exception):
@@ -13,10 +13,10 @@ class UserNotFoundUnexpectedError(Exception):
     """
 
     def __str__(self):
-        return 'Пользователь, пользующийся ботом не найден в базе.'
+        return 'User that is using bot was not found in database.'
 
 
 class DateSmokedGreaterThanToday(Exception):
 
     def __str__(self):
-        return 'Дата последнего курения больше сегодняшней...'
+        return 'Last smoking date for some reason is greater than now.'
