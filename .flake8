@@ -1,0 +1,15 @@
+[flake8]
+exclude = .git,__pycache__
+ignore = \
+    A002, \
+    W503, \             # Разрыв строки после бинарного оператора
+    D100, \             # Докстринги в публичных модулях
+    D104, \             # Докстринги в публичных пакетах (__init__.py)
+    D105, \             # Докстринги в магических методах
+    D106, \             # Докстринги в публичных вложенных классах (например, Meta)
+    D107                # Докстриги в __init__
+application-import-names = core, modules, smoking
+import-order-style = pep8
+
+per-file-ignores =
+    tests/*:E501
