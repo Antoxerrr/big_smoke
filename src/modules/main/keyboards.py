@@ -2,7 +2,7 @@ from core.db.models import User
 from core.helpers import build_menu, user_program_is_active
 
 CAN_I_SMOKE_BUTTON_TEXT = 'Когда можно❓'
-I_SMOKED_BUTTON_TEXT = '☠️Я покурил'
+I_SMOKED_BUTTON_TEXT = '☠ Update! ️☠️'
 SETTINGS_BUTTON_TEXT = '⚙️Настройки'
 
 

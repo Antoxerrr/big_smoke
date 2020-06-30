@@ -1,3 +1,6 @@
+from functools import partial
+
+from telegram import ParseMode
 from telegram.ext import ConversationHandler, MessageHandler
 
 from core.filters import CustomFilters
@@ -7,6 +10,7 @@ from core.helpers import (
 from core.keyboards import BACK_FILTER
 from core.telegram import dispatcher
 from modules.main.keyboards import SETTINGS_BUTTON_TEXT, get_start_keyboard
+from modules.settings import messages
 from modules.settings.keyborads import (
     get_settings_keyboard, START_PROGRAM_BUTTON_TEXT, SWITCH_MODE_BUTTON_TEXT,
     STOP_PROGRAM_BUTTON_TEXT, get_mode_list_keyboard,
@@ -23,12 +27,13 @@ MODE_BUTTONS_FILTER = (
 )
 
 
-def settings(update, context):
+def settings(update, context, message: str = None):
     """Корневой обработчик меню настроек."""
+    message = message if message else messages.SETTINGS_MESSAGE
     user = get_user_or_raise(update.effective_user.id)
     keyboard = get_settings_keyboard(user)
     update.message.reply_text(
-        'Добро пожаловать в настройки!', reply_markup=keyboard
+        message, reply_markup=keyboard, parse_mode=ParseMode.MARKDOWN
     )
     return SETTINGS
 
@@ -36,15 +41,16 @@ def settings(update, context):
 def start_program(update, context):
     """Обработчик начала работы программы или переключения режима."""
     update.message.reply_text(
-        'Выберите режим работы программы.',
+        messages.CHOOSE_MODE_MESSAGE,
         reply_markup=get_mode_list_keyboard()
     )
     return STARTING
 
 
-def back_to_settings(update, context):
+def back_to_settings(update, context, *args, **kwargs):
     """Возвращает в меню настроек."""
-    return settings(update, context)
+    message = kwargs.get('message')
+    return settings(update, context, message=message)
 
 
 def perform_start(update, context):
@@ -52,14 +58,16 @@ def perform_start(update, context):
     mode_id = get_mode_id_by_button_text(update.message.text)
     user = get_user_or_raise(update.effective_user.id)
     if mode_id:
+        message = messages.build_mode_is_set_message(mode_id)
         enable_mode(user, mode_id)
-        return settings(update, context)
+        return settings(update, context, message=message)
 
 
 def stop_program(update, context):
     """Обработчик остановки работы программы."""
     update.message.reply_text(
-        'Вы уверены?', reply_markup=get_stop_program_user_ask_keyboard()
+        messages.ARE_YOU_SURE_MESSAGE,
+        reply_markup=get_stop_program_user_ask_keyboard()
     )
     return STOPPING
 
@@ -71,13 +79,13 @@ def stopping_apply(update, context):
     user.last_smoked = None
     user.mode_id = None
     user.save()
-    return settings(update, context)
+    return settings(update, context, message=messages.PROGRAM_STOPPED_MESSAGE)
 
 
 def switch_mode(update, context):
     """Меню переключения режима работы."""
     update.message.reply_text(
-        'Выберите режим работы программы.',
+        messages.CHOOSE_MODE_MESSAGE,
         reply_markup=get_mode_list_keyboard()
     )
     return SWITCHING_MODE
@@ -88,18 +96,23 @@ def perform_switch_mode(update, context):
     mode_id = get_mode_id_by_button_text(update.message.text)
     user = get_user_or_raise(update.effective_user.id)
     if mode_id:
+        message = messages.build_mode_is_set_message(mode_id)
         enable_mode(user, mode_id, starting=False)
-        return settings(update, context)
+        return settings(update, context, message=message)
 
 
 def back(update, context):
     """Кнопка назад."""
     user = get_user_or_raise(update.effective_user.id)
     update.message.reply_text(
-        'Главное меню', reply_markup=get_start_keyboard(user)
+        messages.MAIN_MENU_MESSAGE, reply_markup=get_start_keyboard(user)
     )
     return ConversationHandler.END
 
+
+stopping_decline = partial(
+    back_to_settings, message=messages.PROGRAM_STOPPING_CANCELED_MESSAGE
+)
 
 dispatcher.add_handler(
     ConversationHandler(
@@ -136,7 +149,7 @@ dispatcher.add_handler(
                 ),
                 MessageHandler(
                     CustomFilters.button(CANCEL_STOP_BUTTON_TEXT),
-                    back_to_settings
+                    stopping_decline
                 )
             ],
             SWITCHING_MODE: [
