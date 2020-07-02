@@ -5,7 +5,7 @@ import sentry_sdk
 from mongoengine import DoesNotExist
 from telegram import ReplyKeyboardMarkup
 
-from core.db.models import User
+from core.db.models import User, ModeUsage
 from core.exceptions import UserNotFoundUnexpectedError
 from smoking.mode import EasyMode, NormalMode, HardMode
 
@@ -38,16 +38,23 @@ def get_user_or_raise(user_id):
     return user
 
 
-def enable_mode(user: User, mode_id: int, starting: bool = True):
-    """Функция активации режима работы программы.
+def enable_mode(user: User, mode_id: int):
+    """Функция активации режима работы программы."""
+    now = datetime.now()
+    actual_mode_usage = ModeUsage.objects(user=user, date_end=None).first()
 
-    Флаг starting отвечает за то, начинает ли пользователь
-    работу с программой бота или же просто меняет режим.
-    """
-    user.mode_id = mode_id
-    if starting:
-        user.date_start = user.last_smoked = datetime.now()
-    user.save()
+    # Закрываем работу прошлого режима
+    if actual_mode_usage:
+        actual_mode_usage.date_end = now
+        actual_mode_usage.save()
+
+    # Начинаем работу нового режима
+    ModeUsage(user=user, mode_id=mode_id, date_start=now).save()
+
+    if not user.program_is_active:
+        user.program_is_active = True
+        user.last_smoked = now
+        user.save()
 
 
 def get_mode_id_by_button_text(button_text):
@@ -62,11 +69,6 @@ def get_mode_id_by_button_text(button_text):
     elif button_text == HARD_MODE_BUTTON_TEXT:
         mode_id = HardMode.mode_id
     return mode_id
-
-
-def user_program_is_active(user: User) -> bool:
-    """Проверка, активна ли у юзера программа бота в данный момент."""
-    return (user.date_start is not None) and (user.mode_id is not None)
 
 
 def decide_declension(variants: List[str], number: int):

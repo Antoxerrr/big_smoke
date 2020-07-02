@@ -1,6 +1,10 @@
 from datetime import datetime, timedelta
 
 
+# Ебаный костыль
+DEFAULT_SMOKING_INTERVAL = timedelta(minutes=20)
+
+
 class BaseMode:
     """Базовый класс режима.
 
@@ -23,17 +27,20 @@ class BaseMode:
         raise NotImplementedError()
 
     @classmethod
-    def ask_for_smoke(
-        cls, date_start: datetime, date_last_smoked: datetime
-    ) -> (datetime, bool):
+    def get_interval(
+            cls, date_start: datetime, date_end: datetime = None
+    ) -> timedelta:
         """Вычисляет время, когда можно в следующий раз покурить."""
-        # Прибавляем к делье единицу, включая последний день в дельту
-        days_delta = (datetime.now() - date_start).days + 1
-        smoking_interval = timedelta(hours=cls.calculate_interval(days_delta))
-
-        next_smoke_time = date_last_smoked + smoking_interval
-        smoking_allowed = next_smoke_time < datetime.now()
-        return next_smoke_time, smoking_allowed
+        if not date_end:
+            date_end = datetime.now()
+        days_delta = (date_end - date_start).days
+        if days_delta <= 0:
+            smoking_interval = timedelta()
+        else:
+            smoking_interval = timedelta(
+                hours=cls.calculate_interval(days_delta)
+            )
+        return smoking_interval
 
 
 class EasyMode(BaseMode):

@@ -3,6 +3,7 @@ from functools import partial
 from telegram import ParseMode
 from telegram.ext import ConversationHandler, MessageHandler
 
+from core.db.models import ModeUsage
 from core.filters import CustomFilters
 from core.helpers import (
     get_user_or_raise, enable_mode, get_mode_id_by_button_text
@@ -40,9 +41,10 @@ def settings(update, context, message: str = None):
 
 def start_program(update, context):
     """Обработчик начала работы программы или переключения режима."""
+    user = get_user_or_raise(update.effective_user.id)
     update.message.reply_text(
         messages.CHOOSE_MODE_MESSAGE,
-        reply_markup=get_mode_list_keyboard()
+        reply_markup=get_mode_list_keyboard(user)
     )
     return STARTING
 
@@ -75,18 +77,21 @@ def stop_program(update, context):
 def stopping_apply(update, context):
     """Остановка работы программы для юзера."""
     user = get_user_or_raise(update.effective_user.id)
-    user.date_start = None
     user.last_smoked = None
-    user.mode_id = None
+    user.program_is_active = False
     user.save()
+
+    # Удаляем все записи по режимам
+    ModeUsage.objects(user=user).delete()
     return settings(update, context, message=messages.PROGRAM_STOPPED_MESSAGE)
 
 
 def switch_mode(update, context):
     """Меню переключения режима работы."""
+    user = get_user_or_raise(update.effective_user.id)
     update.message.reply_text(
         messages.CHOOSE_MODE_MESSAGE,
-        reply_markup=get_mode_list_keyboard()
+        reply_markup=get_mode_list_keyboard(user)
     )
     return SWITCHING_MODE
 
@@ -97,7 +102,7 @@ def perform_switch_mode(update, context):
     user = get_user_or_raise(update.effective_user.id)
     if mode_id:
         message = messages.build_mode_is_set_message(mode_id)
-        enable_mode(user, mode_id, starting=False)
+        enable_mode(user, mode_id)
         return settings(update, context, message=message)
 
 
