@@ -7,14 +7,14 @@ from telegram.ext import CommandHandler, MessageHandler
 from core.db.models import User
 from core.exceptions import DateSmokedGreaterThanToday
 from core.filters import CustomFilters
-from core.helpers import get_user_or_raise, user_program_is_active
+from core.helpers import get_user_or_raise
 from core.telegram import dispatcher
 from modules.main import messages
 from modules.main.helpers import get_or_create_user, beautiful_smoke_ask_answer
 from modules.main.keyboards import (
     get_start_keyboard, CAN_I_SMOKE_BUTTON_TEXT, I_SMOKED_BUTTON_TEXT
 )
-from smoking.modes_map import modes_map
+from smoking.calculator import SmokingTimeCalculator
 
 
 def start(update, context):
@@ -36,26 +36,24 @@ def check_user_last_smoke_date(user: User):
 def smoke_asking(update, context):
     """Обработка кнопки 'Можно курить?'."""
     user = get_user_or_raise(update.effective_user.id)
-    if user_program_is_active(user):
+    if user.program_is_active:
         check_user_last_smoke_date(user)
-        mode = modes_map.get(user.mode_id)
-        if mode:
-            next_smoke_time, smoking_allowed = mode.ask_for_smoke(
-                user.date_start, user.last_smoked
+        next_smoke_time, smoking_allowed = SmokingTimeCalculator.calculate(
+            user
+        )
+        if smoking_allowed:
+            update.message.reply_text(messages.YOU_CAN_SMOKE_MESSAGE)
+        else:
+            answer = beautiful_smoke_ask_answer(next_smoke_time)
+            update.message.reply_text(
+                answer, parse_mode=ParseMode.MARKDOWN
             )
-            if smoking_allowed:
-                update.message.reply_text(messages.YOU_CAN_SMOKE_MESSAGE)
-            else:
-                answer = beautiful_smoke_ask_answer(next_smoke_time)
-                update.message.reply_text(
-                    answer, parse_mode=ParseMode.MARKDOWN
-                )
 
 
 def smoke_update(update, context):
     """Обработка кнопки 'Я покурил'."""
     user = get_user_or_raise(update.effective_user.id)
-    if user_program_is_active(user):
+    if user.program_is_active:
         user.last_smoked = datetime.now()
         user.save()
         update.message.reply_text(messages.TIMER_IS_UPDATED_MESSAGE)
