@@ -59,15 +59,9 @@ def smoke_update(update, context):
         update.message.reply_text(messages.TIMER_IS_UPDATED_MESSAGE)
 
 
-def _write_shit(error_msg):
-    with open('/logs/errors.txt', 'a') as file:
-        file.write('\n' + error_msg)
-
-
 def on_error(update, context):
     """Обработчик ошибок."""
     error_msg = str(context.error)
-    _write_shit(error_msg)
     message = (
         f'{messages.AN_ERROR_OCCURRED_MESSAGE} \n\n `{error_msg}`'
     )
