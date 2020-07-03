@@ -1,4 +1,4 @@
-FROM python:3.8.1-slim
+FROM python:3.7-slim
 
 ENV PROJECT_ROOT=/app
 ENV SRC_ROOT=$PROJECT_ROOT/src
