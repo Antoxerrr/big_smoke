@@ -37,6 +37,8 @@ RUN pip install --upgrade pip wheel pipenv \
 
 COPY . $PROJECT_ROOT
 
+RUN mkdir /logs && touch /logs/errors.txt
+
 WORKDIR $SRC_ROOT
 
 CMD ["python", "./run.py"]
