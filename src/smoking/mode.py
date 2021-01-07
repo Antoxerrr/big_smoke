@@ -46,8 +46,8 @@ class BaseMode:
 class EasyMode(BaseMode):
     """Лёгкий режим.
 
-    Интервал в первый день ~25 минут
-    Интервал через месяц ~4 часа 20 минут
+    Интервал в первый день ~12 минут
+    Интервал через месяц ~1 час 50 минут
     """
 
     name = 'Лёгкий'
@@ -55,7 +55,7 @@ class EasyMode(BaseMode):
 
     @classmethod
     def calculate_interval(cls, days_delta: int) -> float:
-        return (days_delta / 2.5) - (days_delta / 3.7) + 0.3
+        return (days_delta / 1.3) - (days_delta / 1.4) + 0.2
 
 
 class NormalMode(BaseMode):
