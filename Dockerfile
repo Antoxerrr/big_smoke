@@ -1,42 +1,22 @@
-FROM python:3.7-slim
+FROM python:3.12-slim
 
 ENV PROJECT_ROOT=/app
-ENV SRC_ROOT=$PROJECT_ROOT/src
-
-ENV PYTHONPATH=$PYTHONPATH:$PROJECT_ROOT
-
-ENV BUILD_PACKAGES \
-    libev-dev \
-    git \
-    gcc \
-    wget \
-    gfortran \
-    libpng-dev \
-    libc-dev \
-    musl-dev \
-    python3-dev \
-    libffi-dev
-
-
-RUN mkdir $PROJECT_ROOT/
-
-COPY ./Pipfile ./Pipfile.lock $PROJECT_ROOT/
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR $PROJECT_ROOT
 
-RUN pip install --upgrade pip wheel pipenv \
-    && apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends $BUILD_PACKAGES \
-    && apt-get install -y --no-install-recommends curl \
-    && apt-get install -y --no-install-recommends locales \
-    && apt-get install -y --no-install-recommends ffmpeg libavcodec-extra \
-    && sed -i -e 's/# ru_RU.UTF-8 UTF-8/ru_RU.UTF-8 UTF-8/' /etc/locale.gen \
-    && locale-gen \
-    && pipenv install --deploy --system --dev \
-    && apt-get remove -y $BUILD_PACKAGES && apt-get autoremove -y
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-client \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --upgrade pip wheel \
+    && pip install poetry
+
+COPY pyproject.toml poetry.lock $PROJECT_ROOT/
+
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-root --no-interaction --no-ansi --only main
 
 COPY . $PROJECT_ROOT
 
-WORKDIR $SRC_ROOT
-
-CMD ["python", "./run.py"]
+CMD ["sh", "./docker-entrypoint.sh"]
