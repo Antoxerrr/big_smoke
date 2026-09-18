@@ -25,13 +25,29 @@ async def on_startup(application):
     await init_db()
 
 
-def main():
+def get_proxy_url():
+    host = os.getenv('PROXY_HOST')
+    if not host:
+        return None
+    port = os.getenv('PROXY_PORT', '1081')
+    user = os.getenv('PROXY_USER')
+    password = os.getenv('PROXY_PASSWORD')
+    auth = f'{user}:{password}@' if user and password else ''
+    return f'socks5://{auth}{host}:{port}'
 
+
+def main():
     token = os.getenv('TOKEN')
     if not token:
         raise TokenNotSpecifiedException()
 
-    application = ApplicationBuilder().token(token).post_init(on_startup).build()
+    builder = ApplicationBuilder().token(token).post_init(on_startup)
+
+    proxy_url = get_proxy_url()
+    if proxy_url:
+        builder = builder.proxy(proxy_url).get_updates_proxy(proxy_url)
+
+    application = builder.build()
     register_main_handlers(application)
     register_settings_handlers(application)
 
